@@ -1,0 +1,8 @@
+sqlacodegen mysql+pymysql://root:root@localhost:3306/apk_manage_system > ../models/apk_main.py
+
+
+--------------------------------------
+from app import app, db
+
+with app.app_context():
+    db.create_all()
