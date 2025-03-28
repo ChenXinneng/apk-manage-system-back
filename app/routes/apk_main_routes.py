@@ -2,6 +2,8 @@
 from flask import session,Blueprint, request, jsonify
 from app import db
 from app.models.apk_main import ApkMain
+from app.utils.unzipApkUtil import UnzipApkUtil
+from app.utils.screenshotApkUtil import ScreenshotApkUtil
 
 apk_main_bp = Blueprint('apkMain', __name__)
 
@@ -57,23 +59,6 @@ def get_apk(id):
 def create_apk():
     data = request.get_json()
     new_apk = ApkMain(**data)
-    # new_apk = ApkMain(
-    #     app_name=data.get('app_name'),
-    #     package_name=data.get('package_name'),
-    #     main_activity=data.get('main_activity'),
-    #     android_version=data.get('android_version'),
-    #     parse_time=data.get('parse_time'),
-    #     apk_size=data.get('apk_size'),
-    #     file_md5=data.get('file_md5'),
-    #     file_sha1=data.get('file_sha1'),
-    #     file_sha256=data.get('file_sha256'),
-    #     apk_location=data.get('apk_location'),
-    #     apk_download_url=data.get('apk_download_url'),
-    #     create_user=data.get('create_user'),
-    #     create_time=data.get('create_time'),
-    #     update_user=data.get('update_user'),
-    #     update_time=data.get('update_time'),
-    # )
     db.session.add(new_apk)
     db.session.commit()
     return jsonify(new_apk.to_dict()), 201
@@ -93,7 +78,10 @@ def update_apk(id):
     apk.file_sha1 = data.get('file_sha1', apk.file_sha1)
     apk.file_sha256 = data.get('file_sha256', apk.file_sha256)
     apk.apk_location = data.get('apk_location', apk.apk_location)
+    apk.icon_location = data.get('icon_location', apk.icon_location)
+    apk.screenshot_location = data.get('screenshot_location', apk.screenshot_location)
     apk.apk_download_url = data.get('apk_download_url', apk.apk_download_url)
+    apk.download_page_url = data.get('download_page_url', apk.download_page_url)
 
     db.session.commit()
     return jsonify(apk.to_dict())
@@ -105,3 +93,21 @@ def delete_apk(id):
     db.session.delete(apk)
     db.session.commit()
     return '', 204
+
+
+# 静态解析apk
+@apk_main_bp.route('/apkMain/analysis/<int:id>', methods=['POST'])
+def analysis_apk(id):
+    apk = ApkMain.query.get_or_404(id)
+    UnzipApkUtil.getApkStatic(apk.apk_location,apk)
+    db.session.commit()
+    return jsonify(apk.to_dict())
+
+
+# 模拟器打开apk并截图
+@apk_main_bp.route('/apkMain/screenshot/<int:id>', methods=['POST'])
+def screenshot_apk(id):
+    apk = ApkMain.query.get_or_404(id)
+    apk.screenshot_location = ScreenshotApkUtil.screenshot(apk.apk_location)
+    db.session.commit()
+    return jsonify(apk.to_dict())

@@ -13,12 +13,15 @@ class ApkMain(BaseModel):
     main_activity = Column(VARCHAR(255), comment='主活动')
     android_version = Column(String(255), comment='安卓版本')
     parse_time = Column(DateTime, comment='解析时间')
-    apk_size = Column(Float(10, True), comment='apk大小(MB)')
+    apk_size = Column(Integer, comment='apk大小(B)')
     file_md5 = Column(String(255), comment='md5值')
     file_sha1 = Column(String(255), comment='sha1值')
     file_sha256 = Column(String(255), comment='sha256值')
     apk_location = Column(String(255), comment='apk文件路径')
-    apk_download_url = Column(String(255), comment='apk下载url')
+    apk_download_url = Column(String(255), comment='apk下载链接')
+    download_page_url = Column(String(255), comment='下载页面url')
+    icon_location = Column(String(255), comment='图标路径')
+    screenshot_location = Column(String(255), comment='截图路径')
 
     # Optional: SQLAlchemy automatically manages `id`, `create_user`, `create_time`, `update_user`, `update_time`
     # through inheritance from BaseModel
@@ -27,7 +30,8 @@ class ApkMain(BaseModel):
     def __init__(self, app_name=None, package_name=None, main_activity=None, 
                  android_version=None, parse_time=None, apk_size=None, 
                  file_md5=None, file_sha1=None, file_sha256=None, 
-                 apk_location=None, apk_download_url=None, **kwargs):
+                 apk_location=None, apk_download_url=None, download_page_url=None,
+                 icon_location=None,screenshot_location=None, **kwargs):
         super().__init__(**kwargs)  # Initialize from BaseModel (id, create_user, create_time, update_user, update_time)
         self.app_name = app_name
         self.package_name = package_name
@@ -40,6 +44,9 @@ class ApkMain(BaseModel):
         self.file_sha256 = file_sha256
         self.apk_location = apk_location
         self.apk_download_url = apk_download_url
+        self.download_page_url = download_page_url
+        self.icon_location = icon_location
+        self.screenshot_location = screenshot_location
 
     def to_dict(self, date_format="%Y-%m-%d %H:%M:%S"):
         return {
@@ -55,6 +62,9 @@ class ApkMain(BaseModel):
             'file_sha256': self.file_sha256,
             'apk_location': self.apk_location,
             'apk_download_url': self.apk_download_url,
+            'download_page_url': self.download_page_url,
+            'icon_location': self.icon_location,
+            'screenshot_location': self.screenshot_location,
             'create_user': self.create_user,
             'create_time': self.create_time.strftime(date_format) if self.create_time else None,
             'update_user': self.update_user,

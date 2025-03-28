@@ -3,7 +3,7 @@ from flask import session
 from app import db  # 假设你的 db 对象是通过 Flask-SQLAlchemy 初始化的
 from sqlalchemy import event
 from sqlalchemy import Column, DateTime, Float, Integer, String
-from app.utils import get_current_user
+from app.utils.commonUtils import CommonUtils
 
 class BaseModel(db.Model):
     __abstract__ = True  # 告诉 SQLAlchemy 这是一个抽象类，不会生成表格
@@ -31,7 +31,7 @@ class BaseModel(db.Model):
 def before_insert(mapper, connection, target):
     # 自动填充 create_user 和 create_time 字段
     if not target.create_user:
-        target.create_user = get_current_user()  # 获取当前用户
+        target.create_user = CommonUtils.get_current_user()  # 获取当前用户
     if not target.create_time:
         target.create_time = datetime.now()  # 填充当前时间
 
@@ -39,5 +39,5 @@ def before_insert(mapper, connection, target):
 @event.listens_for(BaseModel, 'before_update', propagate=True)
 def before_update(mapper, connection, target):
     # 自动填充 update_user 和 update_time 字段
-    target.update_user = get_current_user()  # 获取当前用户
+    target.update_user = CommonUtils.get_current_user()  # 获取当前用户
     target.update_time = datetime.now()  # 填充当前时间

@@ -29,9 +29,10 @@ def upload_excel():
     try:
         # 解析 Excel
         df = pd.read_excel(file_path)
-
+        df = df.fillna({"apk大小(B)": 0,"app名称":"未知，待解析"})          # 数值字段填充 0
+        df = df.fillna("")  # 默认先把所有 NaN 变成 ""
         # 检查是否包含所需列
-        required_columns = {"app名称", "包名", "主程序", "安卓版本号", "apk大小(MB)","md5","sha1","sha256","apk文件路径","apk下载url"}
+        required_columns = {"app名称", "包名", "主程序", "安卓版本号", "apk大小(B)","md5","sha1","sha256","apk文件路径","apk下载链接","下载页面url"}
         if not required_columns.issubset(set(df.columns)):
             return jsonify({"success": False, "message": "Excel 文件缺少必要的列"}), 400
 
@@ -43,12 +44,13 @@ def upload_excel():
                 package_name=row["包名"],
                 main_activity=row["主程序"],
                 android_version=row["安卓版本号"],
-                apk_size=row["apk大小(MB)"],
+                apk_size=row["apk大小(B)"],
                 file_md5=row["md5"],
                 file_sha1=row["sha1"],
                 file_sha256=row["sha256"],
                 apk_location=row["apk文件路径"],
-                apk_download_url=row["apk下载url"],
+                apk_download_url=row["apk下载链接"],
+                download_page_url=row["下载页面url"],
 
             )
             new_entries.append(apk)

@@ -1,10 +1,10 @@
-from flask import Flask,session, request,jsonify
+from flask import Flask,session, request,jsonify,send_file
 from .extensions import db
 from flask_jwt_extended import JWTManager
 from jwt import decode, ExpiredSignatureError, InvalidTokenError
 from app.config import Config
 from flask_cors import CORS
-
+import os
 # 初始化Flask应用和配置
 app = Flask(__name__)
 
@@ -58,5 +58,11 @@ def check_jwt():
 def before_request():
     return check_jwt()
 
-
+# 允许访问多个路径
+@app.route("/get_image")
+def get_image():
+    image_path = request.args.get("path")  # 获取前端传来的完整路径
+    if not image_path or not os.path.exists(image_path):
+        return "File not found", 404
+    return send_file(image_path, mimetype="image/png")
 
